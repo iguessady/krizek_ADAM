@@ -35,15 +35,17 @@ Tak sa dá ukázať, že zadanie je pokryté na 100 %. Čísla požiadaviek sa n
 |---|---|---|
 | F05 | Používateľ si vie nastaviť svoju triedu (napr. „IV.C", škola, školský rok). | Z4 |
 | F06 | Používateľ si vie pridať, upraviť a zmazať predmety (názov, skratka, farba). Zmazanie predmetu po potvrdení zmaže aj jeho zadania a známky (R16). | Z4, Z5 |
-| F07 | Používateľ si vie zadať týždenný rozvrh (deň, hodina, predmet, prípadne učebňa). | Z4 |
+| ~~F07~~ | ~~Používateľ si vie zadať týždenný rozvrh ručne.~~ **Zrušené (R23):** rozvrh sa iba importuje (F25), hodiny navyše sú udalosti v kalendári (F16). | — |
 | F08 | Aplikácia zobrazí rozvrh v prehľadnej tabuľke. | Z4 |
-| F25 | Používateľ si vie importovať rozvrh vložením svojho odkazu na kalendár z EduPage (.ics); predmety, ktoré ešte nemá, sa vytvoria automaticky (R19). | Z4 |
-| F26 | Po registrácii musí používateľ zadať alebo importovať rozvrh, inak sa nedostane na dashboard; z rozvrhu sa vytvorí zoznam predmetov (R20). | Z4 |
+| F25 | Používateľ si vie importovať rozvrh vložením svojho odkazu na kalendár z EduPage (.ics), vrátane krúžkov a skratky učiteľa; predmety, ktoré ešte nemá, sa vytvoria automaticky (názov = skratka z EduPage, dá sa zmeniť) (R19, R26). | Z4 |
+| F26 | Po registrácii musí používateľ importovať rozvrh z EduPage (F25), inak sa nedostane na dashboard; z rozvrhu sa vytvorí zoznam predmetov (R20, R23). | Z4 |
+| F27 | Import z EduPage pridá do kalendára aj školské akcie (napr. divadlo, stužková); opakovaný import nevytvára duplicity (R26). | Z1, Z3 |
+| F28 | Import z EduPage pridá aj zadania od učiteľov ako zadania k príslušnému predmetu; opakovaný import nevytvára duplicity (R26). | Z2, Z5 |
 
 ### Zadania (to-do list)
 | ID | Požiadavka | Zo zadania |
 |---|---|---|
-| F09 | Používateľ si vie pridať zadanie k predmetu (názov, popis, termín, typ: domáca úloha / test / projekt). | Z2, Z5 |
+| F09 | Používateľ si vie pridať zadanie k predmetu (názov, popis, termín, typ: domáca úloha / test / projekt, počet dní pre upozornenie). | Z2, Z5 |
 | F10 | Používateľ vie zadanie upraviť, zmazať a označiť ako hotové. | Z2 |
 | F11 | Zadania sa dajú zobraziť rozdelené podľa predmetov. | Z5 |
 
@@ -65,9 +67,9 @@ Tak sa dá ukázať, že zadanie je pokryté na 100 %. Čísla požiadaviek sa n
 ### Upozornenia
 | ID | Požiadavka | Zo zadania |
 |---|---|---|
-| F19 | Aplikácia upozorní na blížiace sa testy a domáce úlohy (termín do X dní, X podľa nastavenia, predvolené 3). | Z2 |
+| F19 | Aplikácia upozorní na blížiace sa testy a domáce úlohy (X dní pred termínom, X sa nastavuje pri každom zadaní, predvolené 3). | Z2 |
 | F20 | Aplikácia upozorní na zadania po termíne, ktoré nie sú hotové. | Z2 |
-| F22 | Používateľ si vie nastaviť, koľko dní dopredu chce upozornenia (R17). | Z2 |
+| F22 | Pri každom zadaní si používateľ vie nastaviť, koľko dní pred termínom ho má aplikácia upozorniť; predvolene 3 dni (R24). | Z2 |
 
 ### Dashboard
 | ID | Požiadavka | Zo zadania |
@@ -94,11 +96,11 @@ Tak sa dá ukázať, že zadanie je pokryté na 100 %. Čísla požiadaviek sa n
 
 | Veta zo zadania | Požiadavky |
 |---|---|
-| Z1 | F16, N05 |
-| Z2 | F09, F10, F14, F15, F18, F19, F20, F21, F22 |
-| Z3 | F16, F17, F18 |
-| Z4 | F05, F06, F07, F08, F25, F26 |
-| Z5 | F06, F09, F11, F12, F13 |
+| Z1 | F16, F27, N05 |
+| Z2 | F09, F10, F14, F15, F18, F19, F20, F21, F22, F28 |
+| Z3 | F16, F17, F18, F27 |
+| Z4 | F05, F06, F08, F25, F26 |
+| Z5 | F06, F09, F11, F12, F13, F28 |
 | Z6 | F01, F02, F03, F04, F23, F24, N06, N07 |
 | T1–T4 | N01–N04 |
 

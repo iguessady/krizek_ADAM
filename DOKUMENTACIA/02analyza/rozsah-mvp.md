@@ -8,7 +8,7 @@ Všetko ostatné je až po MVP, ak zostane čas. Tento zoznam chráni projekt pr
 Všetky požiadavky F01 až F26 a N01 až N11 z [poziadavky.md](poziadavky.md):
 
 - registrácia, prihlásenie, odhlásenie,
-- trieda, predmety, týždenný rozvrh (ručne aj importom z EduPage cez .ics odkaz),
+- trieda, predmety, týždenný rozvrh (importom z EduPage cez .ics odkaz),
 - zadania podľa predmetov (pridať, upraviť, zmazať, hotové),
 - známky s automatickým (váženým) priemerom,
 - kalendár udalostí,
@@ -28,6 +28,7 @@ Všetky požiadavky F01 až F26 a N01 až N11 z [poziadavky.md](poziadavky.md):
 | Komunikácia medzi používateľmi (správy, zdieľanie) | nie je v zadaní |
 | Tmavý režim | kozmetika |
 | Párny/nepárny týždeň v rozvrhu | v MVP netreba (R15) |
+| Ručné zadávanie rozvrhu | rozvrh sa iba importuje z EduPage; hodiny navyše sa pridajú do kalendára (R23) |
 | Opakované udalosti v kalendári (napr. každý utorok) | zložitá logika; dá sa doplniť neskôr |
 | Štatistiky a grafy vývoja známok | pekné, ale nie v zadaní |
 | Mobilná aplikácia | stačí responzívny web |

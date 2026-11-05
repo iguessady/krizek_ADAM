@@ -7,8 +7,8 @@ Názvy tabuliek a stĺpcov sú **po anglicky** (sú súčasťou kódu, R05).
 
 ## Hlavné pravidlá
 
-- **Rozvrh je povinný.** Po registrácii musí používateľ rozvrh importovať z EduPage (F25) alebo zadať ručne (F07), až potom sa dostane na dashboard (R20).
-- **Predmety vznikajú z rozvrhu.** Pri importe/zadaní rozvrhu sa vytvorí zoznam predmetov; používateľ ich potom môže upraviť (farba, skratka) alebo pridať ďalší (F06).
+- **Rozvrh je povinný.** Po registrácii musí používateľ rozvrh importovať z EduPage (F25), až potom sa dostane na dashboard (R20, R23).
+- **Predmety vznikajú z rozvrhu.** Pri importe rozvrhu sa vytvorí zoznam predmetov; používateľ ich potom môže upraviť (farba, skratka) alebo pridať ďalší (F06).
 - **Každý údaj patrí jednému používateľovi.** Zmazanie používateľa zmaže všetko jeho (F24); zmazanie predmetu zmaže jeho rozvrh, zadania a známky (R16).
 
 ## ER diagram (textová predloha)
@@ -38,7 +38,6 @@ známka môže (ale nemusí) byť výsledkom konkrétneho zadania.
 | class_name | TEXT | napr. „IV.C" (F05) |
 | school_name | TEXT | (F05) |
 | school_year | TEXT | napr. „2026/2027" (F05) |
-| reminder_days | INTEGER, NOT NULL, default 3 | koľko dní dopredu upozorňovať (F22) |
 | edupage_ics_url | TEXT, NULL | odkaz na rozvrh z EduPage, citlivý údaj (N11) |
 | created_at | DATETIME, NOT NULL | |
 
@@ -47,7 +46,7 @@ známka môže (ale nemusí) byť výsledkom konkrétneho zadania.
 |---|---|---|
 | id | INTEGER, PK | |
 | user_id | INTEGER, FK → users.id, NOT NULL | ON DELETE CASCADE |
-| name | TEXT, NOT NULL | napr. „Matematika" |
+| name | TEXT, NOT NULL | po importe skratka z EduPage (napr. „MAT"), používateľ ju môže premenovať |
 | short_name | TEXT | napr. „MAT" |
 | color | TEXT | farba v rozvrhu/kalendári, napr. `#3b82f6` |
 | | UNIQUE(user_id, name) | jeden používateľ nemá dva rovnaké predmety |
@@ -59,9 +58,10 @@ známka môže (ale nemusí) byť výsledkom konkrétneho zadania.
 | subject_id | INTEGER, FK → subjects.id, NOT NULL | ON DELETE CASCADE |
 | weekday | INTEGER, NOT NULL | 0 = pondelok … 4 = piatok |
 | lesson_number | INTEGER, NOT NULL | 0.–8. hodina |
-| start_time | TIME, NOT NULL | z importu alebo zadané ručne |
+| start_time | TIME, NOT NULL | z importu |
 | end_time | TIME, NOT NULL | |
 | room | TEXT | učebňa |
+| teacher | TEXT | iba skratka/iniciály učiteľa z EduPage (R26) |
 
 ### tasks (zadania)
 | Stĺpec | Typ | Poznámka |
@@ -73,7 +73,10 @@ známka môže (ale nemusí) byť výsledkom konkrétneho zadania.
 | type | TEXT, NOT NULL | `homework` / `test` / `project` / `other` |
 | due_date | DATE, NOT NULL | termín |
 | done | BOOLEAN, NOT NULL, default false | (F10) |
+| reminder_days | INTEGER, NOT NULL, default 3 | koľko dní pred termínom upozorniť, pri každom zadaní zvlášť (F22, R24) |
+| edupage_uid | TEXT, NULL | `UID` z EduPage, ak zadanie prišlo z importu (F28); chráni pred duplicitami |
 | created_at | DATETIME, NOT NULL | |
+| | UNIQUE(subject_id, edupage_uid) | to isté zadanie sa pri opakovanom importe nevytvorí znova |
 
 ### grades (známky)
 
@@ -107,6 +110,8 @@ Ktoré stĺpce musia byť vyplnené, závisí od `kind`; kontroluje to formulár
 | start | DATETIME, NOT NULL | |
 | end | DATETIME | |
 | all_day | BOOLEAN, NOT NULL, default false | |
+| edupage_uid | TEXT, NULL | `UID` z EduPage, ak udalosť prišla z importu (F27) |
+| | UNIQUE(user_id, edupage_uid) | žiadne duplicity pri opakovanom importe |
 
 ## Prečo tak (do práce)
 
@@ -114,10 +119,18 @@ Ktoré stĺpce musia byť vyplnené, závisí od `kind`; kontroluje to formulár
   takže tá istá informácia nie je uložená dvakrát (3. normálna forma). Pri dotazoch sa tabuľky spoja cez `subject_id`.
 - **Vážený priemer** sa neukladá, počíta sa vždy z aktuálnych známok (pozri nižšie).
   Keby sa ukladal, mohol by sa po zmene známky „rozísť" so skutočnosťou.
-- **Upozornenia** nemajú vlastnú tabuľku: počítajú sa z `tasks.due_date`, `tasks.done` a `users.reminder_days`.
+- **Upozornenia** nemajú vlastnú tabuľku: počítajú sa z `tasks.due_date`, `tasks.done` a `tasks.reminder_days`: zadanie sa zobrazí, keď `due_date - reminder_days <= dnes` a nie je hotové.
 - **Termíny zadaní v kalendári** sa nekopírujú do `events`; kalendár ich načíta z `tasks` (F18).
 - **`ON DELETE CASCADE`** zabezpečí mazanie predmetu so zadaniami/známkami (R16) a účtu so všetkým (F24).
   V SQLite treba zapnúť `PRAGMA foreign_keys = ON`.
+
+## Import z EduPage (R19, R23, R26)
+
+Podrobný rozbor súboru je v [edupage-ics.md](edupage-ics.md). Pri každom importe:
+
+1. Bežné hodiny (aj krúžky) → týždenná šablóna v `timetable_entries` (starý rozvrh používateľa sa nahradí novým); chýbajúce predmety sa vytvoria v `subjects`.
+2. Školské akcie → `events`, zadania od učiteľov → `tasks` (k predmetu podľa riadku `Predmet:`).
+3. `edupage_uid` zabezpečí, že sa pri opakovanom importe akcie a zadania nepridajú dvakrát; zmeny, ktoré si používateľ urobil (napr. označil zadanie ako hotové), zostanú.
 
 ## Výpočet priemeru (R21)
 
@@ -137,7 +150,7 @@ Ktoré stĺpce musia byť vyplnené, závisí od `kind`; kontroluje to formulár
 | 4 | 30–49 % | 40 % |
 | 5 | 0–29 % | 15 % |
 
-> Rozsahy sú bežná stupnica; treba ich overiť podľa klasifikačného poriadku školy. Hodnota pri prevode známka → % je stred rozsahu.
+> Stupnica potvrdená 2026-11-03. Hodnota pri prevode známka → % je stred rozsahu.
 
 Prevod sa robí v Pythone (metóda modelu `Grade`), nie v databáze, a dá sa otestovať unit testami.
 

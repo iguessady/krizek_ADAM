@@ -11,7 +11,7 @@ GET = zobrazí stránku, POST = odošle formulár. Všetky stránky okrem `/logi
 | `/register` | GET, POST | registrácia | F01 |
 | `/login` | GET, POST | prihlásenie | F02 |
 | `/logout` | POST | odhlásenie | F02 |
-| `/account` | GET, POST | nastavenia účtu: upozornenia (koľko dní dopredu) | F22 |
+| `/account` | GET | stránka účtu (odkazy na zmenu hesla a zmazanie účtu) | F23, F24 |
 | `/account/password` | GET, POST | zmena hesla | F23 |
 | `/account/delete` | POST | zmazanie účtu (vyžaduje heslo) | F24 |
 
@@ -29,7 +29,6 @@ GET = zobrazí stránku, POST = odošle formulár. Všetky stránky okrem `/logi
 | `/subjects/<id>/edit` | GET, POST | úprava predmetu | F06 |
 | `/subjects/<id>/delete` | POST | zmazanie predmetu aj s jeho zadaniami a známkami (po potvrdení) | F06 |
 | `/timetable` | GET | rozvrh ako tabuľka | F08 |
-| `/timetable/edit` | GET, POST | zadanie/úprava rozvrhu | F07 |
 | `/timetable/import` | GET, POST | import rozvrhu z odkazu EduPage (.ics) | F25 |
 
 ## tasks

@@ -1,0 +1,85 @@
+// ER diagram databázy ADAM — vlož na https://dbdiagram.io
+// Popis tabuliek: navrh-databazy.md
+
+Table users {
+  id integer [pk]
+  email varchar [unique, not null]
+  nick varchar [not null, note: 'iba zobrazované meno']
+  password_hash varchar [not null]
+  school_name varchar
+  school_year varchar
+  class_name varchar
+  edupage_ics_url varchar [note: 'citlivý údaj (N11); prázdny, kým si používateľ neimportuje rozvrh']
+  created_at datetime [not null]
+}
+
+Table subjects {
+  id integer [pk]
+  user_id integer [not null, ref: > users.id]
+  name varchar [not null]
+  short_name varchar
+  color varchar
+
+  indexes {
+    (user_id, name) [unique]
+  }
+}
+
+Table timetable_entries {
+  id integer [pk]
+  subject_id integer [not null, ref: > subjects.id]
+  weekday integer [not null, note: '0 = pondelok ... 4 = piatok']
+  lesson_number integer [not null]
+  start_time time [not null]
+  end_time time [not null]
+  room varchar
+  teacher varchar [note: 'iba skratka učiteľa']
+}
+
+Table tasks {
+  id integer [pk]
+  subject_id integer [not null, ref: > subjects.id]
+  title varchar [not null]
+  description text
+  type varchar [not null, note: 'homework / test / project / other']
+  due_date date [not null]
+  done boolean [not null, default: false]
+  reminder_days integer [not null, default: 3]
+  edupage_uid varchar [note: 'ak prišlo z importu EduPage']
+  created_at datetime [not null]
+
+  indexes {
+    (subject_id, edupage_uid) [unique]
+  }
+}
+
+Table grades {
+  id integer [pk]
+  subject_id integer [not null, ref: > subjects.id]
+  task_id integer [ref: - tasks.id, note: 'voliteľné: známka ako výsledok zadania']
+  kind varchar [not null, note: 'mark / points / percent']
+  mark integer [note: '1-5, iba pri mark']
+  mark_modifier varchar [note: '+ alebo -, iba pri mark']
+  points real [note: 'iba pri points']
+  max_points real [note: 'iba pri points']
+  percent real [note: '0-100, iba pri percent']
+  weight real [not null, default: 1]
+  date date [not null]
+  note text
+}
+
+Table events {
+  id integer [pk]
+  user_id integer [not null, ref: > users.id]
+  subject_id integer [ref: > subjects.id, note: 'voliteľné']
+  title varchar [not null]
+  description text
+  "start" datetime [not null]
+  "end" datetime
+  all_day boolean [not null, default: false]
+  edupage_uid varchar [note: 'ak prišlo z importu EduPage']
+
+  indexes {
+    (user_id, edupage_uid) [unique]
+  }
+}
